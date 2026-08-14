@@ -539,3 +539,28 @@ Additional optional FastAPI dependencies:
 ## License
 
 This project is licensed under the terms of the MIT license.
+
+<!-- ARCH-DIAGRAM:START -->
+
+## Architecture
+
+> Auto-generated architecture diagram. See [`docs/context-map.md`](docs/context-map.md) for the full context map (core application, containers/cloud, and database connections).
+
+```mermaid
+flowchart TD
+  User([User / Client])
+  App["fastapi<br/><small>main.py</small><br/>FastAPI + Uvicorn"]
+  DB0[("PostgreSQL / AlloyDB")]
+  DB1[("Redis")]
+  DB2[("SQLite")]
+  DB3[("Supabase")]
+  SVC0["Cloudflare Workers"]
+  User --> App
+  App --> DB0
+  App --> DB1
+  App --> DB2
+  App --> DB3
+  App --> SVC0
+```
+
+<!-- ARCH-DIAGRAM:END -->
