@@ -7,6 +7,154 @@ hide:
 
 ## Latest Changes
 
+## 0.153.0 (2026-10-20)
+
+Unions of form models now apply the same browser form handling as individual models. Empty scalar fields use defaults or produce missing-field errors, empty list items are preserved, omitted boolean fields become `False`, and unselected files are treated as missing. JSON request bodies are unchanged.
+
+### Fixes
+
+* 🐛 Apply browser form handling to unions of Pydantic models. PR [#16540](https://github.com/fastapi/fastapi/pull/16540) by [@tiangolo](https://github.com/tiangolo).
+
+## 0.152.0 (2026-10-20)
+
+Validation errors for header parameter models now report the HTTP header name, such as `int-val`, instead of the Python field name, `int_val`. Explicit aliases, `Header(convert_underscores=False)`, and Pydantic models with `loc_by_alias=False` keep their existing behavior.
+
+### Fixes
+
+* 🐛 Fix header model validation errors to report HTTP header names. PR [#16538](https://github.com/fastapi/fastapi/pull/16538) by [@tiangolo](https://github.com/tiangolo).
+
+## 0.151.0 (2026-10-20)
+
+JSON request bodies now distinguish an explicit `null` from an omitted value. For individual `Body` parameters, `null` is validated as `None`: nullable types accept it, and non-nullable types reject it even when a default is defined. Defaults and default factories apply only when the value is omitted. This applies both to parameters inside JSON objects and to parameters representing the entire body. Clients that used `null` to request a default should omit the value instead.
+
+When a JSON object is expected because of `Body(embed=True)` or multiple body parameters, sending `null` as the entire body now returns a validation error.
+
+### Breaking Changes
+
+* 🐛 Distinguish JSON null from omitted body values. PR [#16536](https://github.com/fastapi/fastapi/pull/16536) by [@tiangolo](https://github.com/tiangolo).
+
+## 0.150.0 (2026-10-20)
+
+When no file is selected, browsers submit a file part with an empty filename and empty content. FastAPI now treats this as missing: required file fields return a validation error, and fields with defaults or default factories use them. Unselected inputs are ignored in lists of files. Named zero-byte files are still accepted.
+
+### Breaking Changes
+
+* 🐛 Treat unselected browser file inputs as missing. PR [#16534](https://github.com/fastapi/fastapi/pull/16534) by [@tiangolo](https://github.com/tiangolo).
+
+## 0.149.0 (2026-10-19)
+
+Browsers submit empty text inputs as empty strings (`""`). FastAPI now treats empty scalar form values as missing in form models, matching individual `Form` parameters. Required fields return a validation error. Fields with defaults or default factories use them and remain unset in `model_dump(exclude_unset=True)`.
+
+Empty strings inside lists are preserved. Omitted boolean form fields still become `False`. JSON requests and direct Pydantic validation are unchanged.
+
+### Breaking Changes
+
+* 🐛 Treat empty scalar values as missing in form models. PR [#16529](https://github.com/fastapi/fastapi/pull/16529) by [@tiangolo](https://github.com/tiangolo).
+
+## 0.148.0 (2026-10-19)
+
+Defaults for omitted `Query`, `Header`, `Cookie`, and `Form` parameters and model fields are no longer treated as user input. Defaults are not validated unless `validate_default=True` is enabled. If you rely on validators running for omitted values, enable default validation with `Field(validate_default=True)` for model fields or, for example, `Query(validate_default=True)` for individual parameters. `Body(validate_default=True)` is now honored too.
+
+For parameter models, applying a default no longer marks a field as explicitly set, so `model_dump(exclude_unset=True)` excludes it. Default factories run once, and validation errors no longer include injected defaults in `input`.
+
+Omitted boolean form fields still become `False` and count as explicitly set.
+
+### Breaking Changes
+
+* 🐛 Fix default handling for request parameters and models. PR [#16527](https://github.com/fastapi/fastapi/pull/16527) by [@tiangolo](https://github.com/tiangolo).
+
+## 0.147.0 (2026-10-19)
+
+Omitted `bool` and `bool | None` form fields are now interpreted as `False`, matching unchecked HTML checkboxes. This applies to individual `Form` parameters and form models, including required fields and fields with defaults of `True` or `None`. The inferred value is considered explicitly set, including in `model_dump(exclude_unset=True)`.
+
+JSON requests and direct Pydantic validation are unchanged. See [Boolean Form Fields](https://fastapi.tiangolo.com/tutorial/request-forms/#boolean-form-fields).
+
+### Breaking Changes
+
+* 🐛 Treat omitted boolean form fields as False. PR [#16523](https://github.com/fastapi/fastapi/pull/16523) by [@tiangolo](https://github.com/tiangolo).
+
+### Internal
+
+* ✅ Add tests for parameter defaults, nullability, and browser form behavior. PR [#14829](https://github.com/fastapi/fastapi/pull/14829) by [@YuriiMotov](https://github.com/YuriiMotov).
+
+## 0.146.0 (2026-10-18)
+
+The `root_path` parameter in `FastAPI()` is deprecated. Configure the server with `fastapi run --root-path /api/v1` instead.
+
+### Breaking Changes
+
+* 🗑️ Deprecate the `root_path` parameter in `FastAPI`. PR [#16520](https://github.com/fastapi/fastapi/pull/16520) by [@tiangolo](https://github.com/tiangolo).
+
+## 0.145.0 (2026-10-18)
+
+### Breaking Changes
+
+* 🔥 Remove deprecated `openapi_prefix` and unused `**extra` from `FastAPI`. PR [#16518](https://github.com/fastapi/fastapi/pull/16518) by [@tiangolo](https://github.com/tiangolo).
+
+### Docs
+
+* 📝 Document URL paths in templates. PR [#16517](https://github.com/fastapi/fastapi/pull/16517) by [@tiangolo](https://github.com/tiangolo).
+
+## 0.144.0 (2026-10-18)
+
+### Features
+
+* ✨ Add WebSocket support to security dependencies. PR [#10147](https://github.com/fastapi/fastapi/pull/10147) by [@mnixry](https://github.com/mnixry).
+
+## 0.143.5 (2026-10-18)
+
+### Fixes
+
+* 🐛 Fix handling of empty value for `byte` file list parameter. PR [#9383](https://github.com/fastapi/fastapi/pull/9383) by [@Viicos](https://github.com/Viicos).
+
+## 0.143.4 (2026-10-17)
+
+### Upgrades
+
+* ⬆️ Add httpx2 to optional dependencies. PR [#16512](https://github.com/fastapi/fastapi/pull/16512) by [@tiangolo](https://github.com/tiangolo).
+
+## 0.143.3 (2026-10-16)
+
+### Fixes
+
+* 🐛 Fix non-finite float serialization in JSONL and SSE streams. PR [#16509](https://github.com/fastapi/fastapi/pull/16509) by [@tiangolo](https://github.com/tiangolo).
+
+### Docs
+
+* 🎨 Update Python format in Markdown with Ruff. PR [#16505](https://github.com/fastapi/fastapi/pull/16505) by [@tiangolo](https://github.com/tiangolo).
+
+## 0.143.2 (2026-10-15)
+
+### Fixes
+
+* 🐛 Fix blocking frontend fallback file checks. PR [#16503](https://github.com/fastapi/fastapi/pull/16503) by [@tiangolo](https://github.com/tiangolo).
+
+### Translations
+
+* 🌐 Update translations for zh-hant (update-outdated). PR [#16500](https://github.com/fastapi/fastapi/pull/16500) by [@pr-submit[bot]](https://github.com/apps/pr-submit).
+* 🌐 Update translations for ja (update-outdated). PR [#16499](https://github.com/fastapi/fastapi/pull/16499) by [@pr-submit[bot]](https://github.com/apps/pr-submit).
+* 🌐 Update translations for zh (update-outdated). PR [#16501](https://github.com/fastapi/fastapi/pull/16501) by [@pr-submit[bot]](https://github.com/apps/pr-submit).
+* 🌐 Update translations for hi (update-outdated). PR [#16498](https://github.com/fastapi/fastapi/pull/16498) by [@pr-submit[bot]](https://github.com/apps/pr-submit).
+* 🌐 Update translations for es (update-outdated). PR [#16497](https://github.com/fastapi/fastapi/pull/16497) by [@pr-submit[bot]](https://github.com/apps/pr-submit).
+* 🌐 Update translations for fr (update-outdated). PR [#16495](https://github.com/fastapi/fastapi/pull/16495) by [@pr-submit[bot]](https://github.com/apps/pr-submit).
+* 🌐 Update translations for ko (update-outdated). PR [#16496](https://github.com/fastapi/fastapi/pull/16496) by [@pr-submit[bot]](https://github.com/apps/pr-submit).
+* 🌐 Update translations for de (update-outdated). PR [#16493](https://github.com/fastapi/fastapi/pull/16493) by [@pr-submit[bot]](https://github.com/apps/pr-submit).
+* 🌐 Update translations for uk (update-outdated). PR [#16494](https://github.com/fastapi/fastapi/pull/16494) by [@pr-submit[bot]](https://github.com/apps/pr-submit).
+* 🌐 Update translations for tr (update-outdated). PR [#16490](https://github.com/fastapi/fastapi/pull/16490) by [@pr-submit[bot]](https://github.com/apps/pr-submit).
+* 🌐 Update translations for pt (update-outdated). PR [#16491](https://github.com/fastapi/fastapi/pull/16491) by [@pr-submit[bot]](https://github.com/apps/pr-submit).
+* 🌐 Update translations for ru (update-outdated). PR [#16492](https://github.com/fastapi/fastapi/pull/16492) by [@pr-submit[bot]](https://github.com/apps/pr-submit).
+
+### Internal
+
+* ⬆ Bump pydantic-ai-slim from 2.49.0 to 2.53.0. PR [#16487](https://github.com/fastapi/fastapi/pull/16487) by [@dependabot[bot]](https://github.com/apps/dependabot).
+* ⬆ Bump werkzeug from 3.1.6 to 3.1.9. PR [#16464](https://github.com/fastapi/fastapi/pull/16464) by [@dependabot[bot]](https://github.com/apps/dependabot).
+
+## 0.143.1 (2026-10-14)
+
+### Fixes
+
+* 🐛 Fix included route metadata in `iter_route_contexts()`. PR [#16484](https://github.com/fastapi/fastapi/pull/16484) by [@tiangolo](https://github.com/tiangolo).
+
 ## 0.143.0 (2026-10-08)
 
 Automatic OpenTelemetry exporter setup is now opt-in. If you rely on FastAPI to configure exporters from `OTEL_*` environment variables, set `FASTAPI_OTEL_AUTO_CONFIGURE=true` or use `FastAPI(telemetry={"auto_configure": True})` to retain the previous behavior.
@@ -4639,23 +4787,19 @@ def get_current_user(token: str):
 
 
 @app.get("/items/")
-def read_items(user: User = Depends(get_current_user)):
-    ...
+def read_items(user: User = Depends(get_current_user)): ...
 
 
 @app.post("/items/")
-def create_item(*, user: User = Depends(get_current_user), item: Item):
-    ...
+def create_item(*, user: User = Depends(get_current_user), item: Item): ...
 
 
 @app.get("/items/{item_id}")
-def read_item(*, user: User = Depends(get_current_user), item_id: int):
-    ...
+def read_item(*, user: User = Depends(get_current_user), item_id: int): ...
 
 
 @app.delete("/items/{item_id}")
-def delete_item(*, user: User = Depends(get_current_user), item_id: int):
-    ...
+def delete_item(*, user: User = Depends(get_current_user), item_id: int): ...
 ```
 
 There's a bit of code duplication for the dependency:
@@ -4679,23 +4823,19 @@ CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 @app.get("/items/")
-def read_items(user: CurrentUser):
-    ...
+def read_items(user: CurrentUser): ...
 
 
 @app.post("/items/")
-def create_item(user: CurrentUser, item: Item):
-    ...
+def create_item(user: CurrentUser, item: Item): ...
 
 
 @app.get("/items/{item_id}")
-def read_item(user: CurrentUser, item_id: int):
-    ...
+def read_item(user: CurrentUser, item_id: int): ...
 
 
 @app.delete("/items/{item_id}")
-def delete_item(user: CurrentUser, item_id: int):
-    ...
+def delete_item(user: CurrentUser, item_id: int): ...
 ```
 
 ...and `CurrentUser` has all the typing information as `User`, so your editor will work as expected (autocompletion and everything), and **FastAPI** will be able to understand the dependency defined in `Annotated`. 😎
@@ -5287,12 +5427,15 @@ For example, if you have an app like this:
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+
 class Item(BaseModel):
     name: str
     price: Optional[float] = None
     owner_ids: Optional[List[int]] = None
 
+
 app = FastAPI()
+
 
 @app.get("/items/invalidnone", response_model=Item)
 def get_invalid_none():
@@ -5307,12 +5450,15 @@ You could also be implicitly returning `None` without realizing, for example:
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+
 class Item(BaseModel):
     name: str
     price: Optional[float] = None
     owner_ids: Optional[List[int]] = None
 
+
 app = FastAPI()
+
 
 @app.get("/items/invalidnone", response_model=Item)
 def get_invalid_none():
@@ -5329,12 +5475,15 @@ from typing import Union
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+
 class Item(BaseModel):
     name: str
     price: Optional[float] = None
     owner_ids: Optional[List[int]] = None
 
+
 app = FastAPI()
+
 
 @app.get("/items/invalidnone", response_model=Union[Item, None])
 def get_invalid_none():
@@ -5706,6 +5855,7 @@ from typing import Any, Dict, Optional
 legacy_request_state_context_var: ContextVar[Optional[Dict[str, Any]]] = ContextVar(
     "legacy_request_state_context_var", default=None
 )
+
 
 async def set_up_request_state_dependency():
     request_state = {"user": "deadpond"}
